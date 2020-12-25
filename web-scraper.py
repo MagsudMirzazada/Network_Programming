@@ -45,15 +45,18 @@ class Server:
             print(
                 f"{colored('Connected to', 'yellow')} {colored(str(addr[0]) + ':' + str(addr[1]), 'blue')} " +
                 f"{colored('and processing', 'yellow')} {colored(url, 'red')}")
+            #scrapping
             content = requests.get(url).content
             soup = BeautifulSoup(content, "html.parser")
             soup.prettify()
+            #finding leaf 'p' elements
             pList = soup.find_all("p")
             leafCounter = 0
             for pElement in pList:
                 if not pElement.find_all("p"):
                     leafCounter += 1
             imageCounter = len(soup.find_all("img"))
+            #concatinating all results
             finalResult = str(imageCounter) + ',' + \
                 str(leafCounter) + ',' + str(url)
             sc.send(finalResult.encode(ENCODING))
