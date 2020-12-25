@@ -1,4 +1,4 @@
-# TAKEN
+# NM
 # ADD VIDEO TO THE DATABASE
 
 from flask import Flask

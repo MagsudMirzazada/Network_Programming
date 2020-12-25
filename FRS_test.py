@@ -1,4 +1,4 @@
-# SCRATCH-UP
+# M
 # ADDS CAR TO THE DATABASE
 
 from flask import Flask
