@@ -4,7 +4,7 @@ BASE = 'http://127.0.0.1:5000/flights'
 
 class User:
     def __init__(self):
-        self.token = token
+        self.token = None
         self.usrname = None
         self.password = None
 

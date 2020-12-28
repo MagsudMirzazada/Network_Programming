@@ -1,11 +1,14 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse, fields, marshal_with, abort
 from flask_sqlalchemy import SQLAlchemy
+import jwt
 
 app = Flask(__name__)
 api = Api(app)
 app.config ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flight_database.db'
 app.config ['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config ['SECRET_KEY'] = 'sekretniy'
+
 db = SQLAlchemy(app)
 
 # init database
@@ -20,6 +23,13 @@ class FlightDB(db.Model):
 
     def __repr__(self):
         return f"model: {model_name}, company: {company}, vehicle: {vehicle_type}, transmission: {transmission}, intruduction_date: {introduction_date}"
+
+class Admin(db.Model):
+    username = db.Column(db.String(32), primary_key=True)
+    password = db.Column(db.String(32), nullable=False)
+
+    def __repr__(self):
+        return f"Username: {username}, Password: {password}"
 
 # parse request
 post_args = reqparse.RequestParser()
@@ -67,15 +77,27 @@ class Get_Flight(Resource):
         return result
 
 class AUT(Resource):
-    def get(self, aut_):
+    def get(self):
         args = admin_args.parse_args()
-        print(args['username'], args['password'])
+        admin = Admin.query.filter_by(username = args['username'], password = args['password']).first()
+        if not admin:
+            abort(404, message="Couldn't find admin")
+        token = jwt.encode({'username': admin.username, 'password': admin.password}, app.config['SECRET_KEY'])
+        print(token)
+        return jsonify({'token': token})
 
 
 api.add_resource(Post_Flight, "/flights")
-app.add_resource(Get_Flight, "/flights/<string:from>/<string:to>")
-app.add_resource(AUT, "/flights/authentication_authorization/")
+api.add_resource(Get_Flight, "/flights/<string:from>/<string:to>")
+api.add_resource(AUT, "/flights/authentication_authorization/")
 
+def main():
+    app.run(debug=True)
+    # db.create_all()
+    # admin = Admin(username='Magsud', password='Phoenix')
+    # db.session.add(admin)
+    # db.session.commit()
+    jwt.encode
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    main()
