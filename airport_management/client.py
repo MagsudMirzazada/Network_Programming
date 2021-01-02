@@ -92,13 +92,15 @@ def homepage():
         user = User()
         print('='*60)
         print('''
-        ===Welcome to Airline Information Center===
+        Welcome to Airline Information Center
+        -------------------------------------
         1. Login
         2. Show my token
         3. Get flights info
         4. Manipulate flights
         5. Logout
         6. Exit''')
+        print('='*60)
         operation = str(input(colored('Please, enter service number: ', 'green')))
         if operation == '1':
             user.login()
