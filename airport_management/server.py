@@ -166,10 +166,6 @@ api.add_resource(Logout, "/end_session") # Logout
 def main():
     app.run(debug=True)
     # db.create_all()
-    # admin = Admin(username='Magsud', password='Phoenix')
-    # admin = Admin(username='admin', password='admin0')
-    # db.session.add(admin)
-    # db.session.commit()
 
 if __name__ == '__main__':
     main()
