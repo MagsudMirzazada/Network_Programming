@@ -113,8 +113,8 @@ url = 'https://' + fullUrl#\
                 #fullUrl.split('//')[len(fullUrl.split('//')) - 1]
 print(url)
 '''
-
-
+#=====#
+'''
 data = {
     "model_name": "M8",
     "company": "BMW",
@@ -129,3 +129,9 @@ BASE = 'http://127.0.0.1:5000/'
 res = requests.post(BASE + "/car/1", data)
 res1 = requests.get(BASE + "car/1")
 print(res1.json())
+'''
+
+
+msg = 'zz'
+data = f"short" + msg
+print(data)

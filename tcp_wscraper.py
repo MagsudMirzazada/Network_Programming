@@ -11,7 +11,24 @@ from termcolor import colored
 import pickle
 
 HOST = '127.0.0.1'
-PORT = 65428
+PORT = 5001
+MAX_BYTES = 65535
+HEADER_SIZE = 8
+
+def recv_all(sock, length):
+    data = b''
+    while len(data) < length:
+        more = sock.recv(length - len(data))
+        if not more:
+            raise EOFError(f'''was expecting {length} bytes, but only received {len(data)} bytes
+                            before socket closed''')
+        data += more
+    return data
+
+def make_message(msg):
+    message = f"{len(msg):<8}{msg}"
+    message = message.encode('utf-8')
+    return message
 
 class Server():
     def __init__(self):
@@ -33,7 +50,11 @@ class Server():
 
     def handler(self, clientsocket, addr):
         try:
-            raw_url = (clientsocket.recv(256)).decode('utf-8')
+            length = (recv_all(clientsocket, HEADER_SIZE)).decode('utf-8')
+            print(f"Message length is {length}")
+            raw_url = (recv_all(clientsocket, int(length))).decode('utf-8')
+            # sssssssss
+            # raw_url = (clientsocket.recv(256)).decode('utf-8')
             url = "https://" + raw_url
             print(
                 f"{colored('Connected to', 'yellow')} {colored(str(addr[0]) + ':' + str(addr[1]), 'blue')} " + 
@@ -66,8 +87,8 @@ class Server():
             #test finish
             '''
 
-            
-            clientsocket.send(result.encode('utf-8'))
+            data = make_message(result)
+            clientsocket.send(data)
         finally:
             clientsocket.close()
             print(colored(f"Disconnected from {colored(str(addr[0]) + ':' + str(addr[1]), 'blue')}", "yellow"))
@@ -82,9 +103,18 @@ class Client():
     def start(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((HOST, PORT))
-        sock.send(self.url.encode('utf-8'))
-        data = (sock.recv(256)).decode('utf-8')
-        para, url = data.split(',')
+        data = make_message(self.url)
+        sock.send(data)
+        sock.shutdown(socket.SHUT_WR)
+
+        length = (recv_all(sock, HEADER_SIZE)).decode('utf-8')
+
+        reply = (recv_all(sock, int(length))).decode('utf-8')
+
+        #sssss
+        #sock.send(self.url.encode('utf-8'))
+        #data = (sock.recv(256)).decode('utf-8')
+        para, url = reply.split(',')
         print(
             f"{colored(url, 'red')} {colored('has', 'yellow')} {colored(para, 'red')} {colored('divs', 'yellow')}"
         )
